@@ -39,7 +39,7 @@ public class MarbleDiagramView extends FrameLayout {
     private int number;
     private String operatorName;
     //private List<List<Ball>> observables;
-    private List<List<BallView>> observables;
+    private List<List<MarbleView>> observables;
     private float distance;
     private boolean observableLoaded;
 
@@ -102,7 +102,7 @@ public class MarbleDiagramView extends FrameLayout {
         number = 3;
         operatorName = "Merge";
         observables = new ArrayList<>();
-        List<BallView> o1 = new ArrayList<>();
+        List<MarbleView> o1 = new ArrayList<>();
 
         //List<Ball> o1 = new ArrayList<>();
         //List<Ball> o2 = new ArrayList<>();
@@ -137,12 +137,13 @@ public class MarbleDiagramView extends FrameLayout {
     }
 
     public void loadObservable() {
-        BallView ballView = new BallView(context);
+        MarbleView marbleView = new MarbleView(context);
         FrameLayout.LayoutParams params = new LayoutParams(80, 80);
-        ballView.setLayoutParams(params);
-        ballView.setDistance(distance);
-        ballView.setX(40);
-        this.addView(ballView);
+        marbleView.setLayoutParams(params);
+        marbleView.setDistance(distance);
+        marbleView.setX(40);
+        marbleView.setName("A");
+        this.addView(marbleView);
         observableLoaded = true;
         //this.addView();
     }

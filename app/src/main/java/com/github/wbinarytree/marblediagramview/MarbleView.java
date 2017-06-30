@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -11,17 +12,30 @@ import android.view.View;
  * Created by yaoda on 30/06/17.
  */
 
-class BallView extends View {
+class MarbleView extends View {
 
     private float distance = 0;
     private Paint paint;
+    private TextPaint textPaint;
     private float dX;
     private float dY;
+    private String name = "";
+    private float width;
+    private float height;
 
-    public BallView(Context context) {
+    public MarbleView(Context context) {
         super(context);
-        paint = new Paint();
+        init();
+    }
+
+    private void init() {
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.BLUE);
+        textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setTextSize(48);
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        setLayerType(LAYER_TYPE_SOFTWARE, paint);
     }
 
     public void setDistance(float distance) {
@@ -31,13 +45,26 @@ class BallView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        setY(getY() + distance - getHeight() / 2);
+        width = w;
+        height = h;
+        setY(getY() + distance - w / 2);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(getWidth() / 2, getHeight() / 2, getWidth() / 2, paint);
+        canvas.drawCircle(width / 2, height / 2, getWidth() / 2, paint);
+        float xPos = width / 2;
+        float yPos = height / 2 - (textPaint.descent() + textPaint.ascent() / 2);
+        canvas.drawText(name, xPos, yPos, textPaint);
     }
 
     @Override
