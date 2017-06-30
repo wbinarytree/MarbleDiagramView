@@ -10,7 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.view.View;
+import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +21,12 @@ import static android.graphics.Paint.Style.FILL_AND_STROKE;
  * Created by yaoda on 30/06/17.
  */
 
-public class MarbleDiagramView extends View {
+public class MarbleDiagramView extends FrameLayout {
     private static final int MARGIN = 10;
     private static final float ARROWSIZE = 25f;
     private static final float LINE_SIZE = 5f;
-
     private final Context context;
+    private boolean isBaseDrew;
     private int width;
     private int height;
     private Paint baseLinePaint;
@@ -38,8 +38,10 @@ public class MarbleDiagramView extends View {
     private Path path;
     private int number;
     private String operatorName;
+    //private List<List<Ball>> observables;
     private List<List<BallView>> observables;
     private float distance;
+    private boolean observableLoaded;
 
     public MarbleDiagramView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -47,7 +49,14 @@ public class MarbleDiagramView extends View {
         init();
     }
 
+    public MarbleDiagramView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        this.context = context;
+        init();
+    }
+
     private void init() {
+        //setWillNotDraw(false);
         baseLinePaint = new Paint();
         baseLinePaint.setStyle(Paint.Style.STROKE);
         baseLinePaint.setStrokeWidth(2);
@@ -82,7 +91,11 @@ public class MarbleDiagramView extends View {
         }
         operatorPaint.setShadowLayer(5f, 0, 0, Color.BLACK);
         setLayerType(LAYER_TYPE_SOFTWARE, operatorPaint);
+        isBaseDrew = false;
+        observableLoaded = false;
         initTest();
+        //loadObservable();
+
     }
 
     private void initTest() {
@@ -90,52 +103,92 @@ public class MarbleDiagramView extends View {
         operatorName = "Merge";
         observables = new ArrayList<>();
         List<BallView> o1 = new ArrayList<>();
-        List<BallView> o2 = new ArrayList<>();
-        List<BallView> o3 = new ArrayList<>();
-        o1.add(new BallView("A"));
-        o1.add(new BallView("B"));
-        o1.add(new BallView("C"));
-        o2.add(new BallView("1"));
-        o2.add(new BallView("2"));
-        o2.add(new BallView("3"));
-        o3.add(new BallView("M"));
-        o3.add(new BallView("N"));
-        o3.add(new BallView("O"));
-        observables.add(o1);
-        observables.add(o2);
-        observables.add(o3);
+
+        //List<Ball> o1 = new ArrayList<>();
+        //List<Ball> o2 = new ArrayList<>();
+        //List<Ball> o3 = new ArrayList<>();
+        //o1.add(new Ball("A"));
+        //o1.add(new Ball("B"));
+        //o1.add(new Ball("C"));
+        //o2.add(new Ball("1"));
+        //o2.add(new Ball("2"));
+        //o2.add(new Ball("3"));
+        //o3.add(new Ball("M"));
+        //o3.add(new Ball("N"));
+        //o3.add(new Ball("O"));
+        //observables.add(o1);
+        //observables.add(o2);
+        //observables.add(o3);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawBase(canvas);
-        drawObservables(canvas);
         super.onDraw(canvas);
     }
 
-    private void drawObservables(Canvas canvas) {
-        if (observables.size() != number) {
-            throw new RuntimeException("don't have enough Observable Set to Draw");
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+
+        drawBase(canvas);
+        if (distance != 0 && !observableLoaded) {
+            loadObservable();
         }
-        float y = distance;
-        float space = width / 16;
-        for (List<BallView> observable : observables) {
-            for (int i = 1 ; i <= observable.size() ; i++) {
-                float cx = space * (2 * i - 1);
-                canvas.drawCircle(cx, y, space / 2, ballPaint);
-                float posY = y - (ballTextPaint.descent() + ballTextPaint.ascent()) / 2;
-                canvas.drawText(observable.get(i - 1).getValue(), cx, posY, ballTextPaint);
-                //TextView text = new TextView(context);
-                //this.addView(text);
-                //ConstraintSet set = new ConstraintSet();
-                //set.clone(this);
-                //set.connect(text.getId(),ConstraintSet.TOP,this.getId(),ConstraintSet.TOP, (int) y);
-                //set.connect(text.getId(),ConstraintSet.START,this.getId(),ConstraintSet.START, (int) cx);
-                //set.applyTo(this);
-            }
-            y += 2 * distance;
-        }
+        super.dispatchDraw(canvas);
     }
+
+    public void loadObservable() {
+        BallView ballView = new BallView(context);
+        FrameLayout.LayoutParams params = new LayoutParams(80, 80);
+        ballView.setLayoutParams(params);
+        ballView.setDistance(distance);
+        ballView.setX(40);
+        this.addView(ballView);
+        observableLoaded = true;
+        //this.addView();
+    }
+
+    //private void drawObservables(final Canvas canvas) {
+    //    if (observables.size() != number) {
+    //        throw new RuntimeException("Doesn't have enough Observable Set to Draw");
+    //    }
+    //    float y = distance;
+    //    final float space = width / 16;
+    //    for (List<Ball> observable : observables) {
+    //        for (int i = 1 ; i <= observable.size() ; i++) {
+    //            float cx = space * (2 * i - 1);
+    //            canvas.drawCircle(cx, y, space / 2, ballPaint);
+    //            float posY = y - (ballTextPaint.descent() + ballTextPaint.ascent()) / 2;
+    //            canvas.drawText(observable.get(i - 1).getValue(), cx, posY, ballTextPaint);
+    //            //TextView text = new TextView(context);
+    //            //this.addView(text);
+    //            //ConstraintSet set = new ConstraintSet();
+    //            //set.clone(this);
+    //            //set.connect(text.getId(),ConstraintSet.TOP,this.getId(),ConstraintSet.TOP, (int) y);
+    //            //set.connect(text.getId(),ConstraintSet.START,this.getId(),ConstraintSet.START, (int) cx);
+    //            //set.applyTo(this);
+    //        }
+    //        y += 2 * distance;
+    //    }
+    //    final float y1 = y + 2 * distance;
+    //    Observable.fromIterable(observables)
+    //        .flatMapIterable(new Function<List<Ball>, Iterable<Ball>>() {
+    //            @Override
+    //            public Iterable<Ball> apply(@NonNull List<Ball> balls) throws Exception {
+    //                return balls;
+    //            }
+    //        })
+    //        .subscribe(new Consumer<Ball>() {
+    //            int i = 1;
+    //
+    //            @Override
+    //            public void accept(@NonNull Ball ball) throws Exception {
+    //                float cx = space * (2 * i++ - 1);
+    //                canvas.drawCircle(cx, y1, space / 2, ballPaint);
+    //                float posY = y1 - (ballTextPaint.descent() + ballTextPaint.ascent()) / 2;
+    //                canvas.drawText(ball.getValue(), cx, posY, ballTextPaint);
+    //            }
+    //        });
+    //}
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -143,11 +196,11 @@ public class MarbleDiagramView extends View {
         this.width = w;
         this.height = h;
         distance = height / (number + 2) / 2;
+        invalidate();
     }
 
     private void drawBase(Canvas canvas) {
         //draw base line
-
         float length = width - MARGIN;
         path.moveTo(length, 0);
         path.lineTo(length - ARROWSIZE * 2, -ARROWSIZE);
@@ -171,6 +224,7 @@ public class MarbleDiagramView extends View {
         float yPos =
             (distance * (number * 2 + 1) - ((textPaint.descent() + textPaint.ascent()) / 2));
         canvas.drawText(operatorName, xPos, yPos, textPaint);
+        path.reset();
     }
 
     public void setNumber(int number) {

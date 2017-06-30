@@ -1,42 +1,71 @@
 package com.github.wbinarytree.marblediagramview;
 
+import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.support.annotation.ColorInt;
+import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
  * Created by yaoda on 30/06/17.
  */
 
-public class BallView {
-    private String value;
-    @ColorInt
-    private int color;
+class BallView extends View {
 
-    public BallView(String value, @ColorInt int color) {
-        this.value = value;
-        this.color = color;
-    }
-    public BallView(String value) {
-        this.value = value;
-        this.color = Color.RED;
-    }
+    private float distance = 0;
+    private Paint paint;
+    private float dX;
+    private float dY;
 
-    @ColorInt
-    public int getColor() {
-        return color;
+    public BallView(Context context) {
+        super(context);
+        paint = new Paint();
+        paint.setColor(Color.BLUE);
     }
 
-    public void setColor(@ColorInt int color) {
-        this.color = color;
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 
-    public String getValue() {
-
-        return value;
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        setY(getY() + distance - getHeight() / 2);
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawCircle(getWidth() / 2, getHeight() / 2, getWidth() / 2, paint);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dX = getX() - event.getRawX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //y(event.getRawY() + dY)
+                float x = event.getRawX() + dX;
+                if (x < getWidth() / 2) x = getWidth() / 2;
+                View parent = (View) getParent();
+                int width = parent.getWidth();
+                if (x > width - getWidth() / 2 * 3) x = width - getWidth() / 2 * 3;
+                animate().x(x).setDuration(0).start();
+                //setX(event.getRawX() + dX);
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void invalidate() {
+        //setX(getX() + distance);
+
+        super.invalidate();
     }
 }
