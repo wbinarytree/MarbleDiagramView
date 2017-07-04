@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.view.View;
 
 class MarbleView extends View {
 
+    private Marble marble;
     private float distance = 0;
     private Paint paint;
     private TextPaint textPaint;
@@ -22,15 +25,50 @@ class MarbleView extends View {
     private String name = "";
     private float width;
     private float height;
+    private MarbleView linkedMarbleView;
+    private float distanceX;
+    private float linkWidth;
 
     public MarbleView(Context context) {
         super(context);
+        marble = new Marble("X", 0xFF87CEFA);
         init();
+    }
+
+    public MarbleView(Context context, Marble marble) {
+        super(context);
+        this.marble = marble;
+        init();
+    }
+
+    public void setDistanceX(float x) {
+        distanceX = x;
+        setX(distanceX);
+    }
+
+    @Override
+    public void setX(float x) {
+        super.setX(x);
+        if (linkedMarbleView != null) {
+            linkedMarbleView.setX(linkWidth + x);
+        }
+    }
+
+    public void setMarble(@NonNull Marble marble) {
+        this.marble = marble;
+    }
+
+    public void linkedWith(@Nullable MarbleView marbleView) {
+        linkedMarbleView = marbleView;
+        if (linkedMarbleView != null) {
+            linkWidth = linkedMarbleView.getX() - getX();
+            linkedMarbleView.setX(linkWidth + getX());
+        }
     }
 
     private void init() {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLUE);
+        paint.setColor(marble.getColor());
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTextSize(48);
         textPaint.setColor(Color.WHITE);
@@ -38,7 +76,7 @@ class MarbleView extends View {
         setLayerType(LAYER_TYPE_SOFTWARE, paint);
     }
 
-    public void setDistance(float distance) {
+    public void setDistanceY(float distance) {
         this.distance = distance;
     }
 
@@ -63,7 +101,7 @@ class MarbleView extends View {
         super.onDraw(canvas);
         canvas.drawCircle(width / 2, height / 2, getWidth() / 2, paint);
         float xPos = width / 2;
-        float yPos = height / 2 - (textPaint.descent() + textPaint.ascent() / 2);
+        float yPos = (height - textPaint.descent() - textPaint.ascent()) / 2;
         canvas.drawText(name, xPos, yPos, textPaint);
     }
 
@@ -80,8 +118,8 @@ class MarbleView extends View {
                 View parent = (View) getParent();
                 int width = parent.getWidth();
                 if (x > width - getWidth() / 2 * 3) x = width - getWidth() / 2 * 3;
-                animate().x(x).setDuration(0).start();
-                //setX(event.getRawX() + dX);
+                //animate().x(x).setDuration(0).start();
+                setX(x);
                 break;
             default:
                 return false;
@@ -91,8 +129,6 @@ class MarbleView extends View {
 
     @Override
     public void invalidate() {
-        //setX(getX() + distance);
-
         super.invalidate();
     }
 }

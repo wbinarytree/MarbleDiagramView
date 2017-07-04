@@ -38,10 +38,11 @@ public class MarbleDiagramView extends FrameLayout {
     private Path path;
     private int number;
     private String operatorName;
-    //private List<List<Ball>> observables;
+    //private List<List<Marble>> observables;
     private List<List<MarbleView>> observables;
     private float distance;
     private boolean observableLoaded;
+    private MarbleDiagram diagram;
 
     public MarbleDiagramView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -103,22 +104,6 @@ public class MarbleDiagramView extends FrameLayout {
         operatorName = "Merge";
         observables = new ArrayList<>();
         List<MarbleView> o1 = new ArrayList<>();
-
-        //List<Ball> o1 = new ArrayList<>();
-        //List<Ball> o2 = new ArrayList<>();
-        //List<Ball> o3 = new ArrayList<>();
-        //o1.add(new Ball("A"));
-        //o1.add(new Ball("B"));
-        //o1.add(new Ball("C"));
-        //o2.add(new Ball("1"));
-        //o2.add(new Ball("2"));
-        //o2.add(new Ball("3"));
-        //o3.add(new Ball("M"));
-        //o3.add(new Ball("N"));
-        //o3.add(new Ball("O"));
-        //observables.add(o1);
-        //observables.add(o2);
-        //observables.add(o3);
     }
 
     @Override
@@ -130,66 +115,71 @@ public class MarbleDiagramView extends FrameLayout {
     protected void dispatchDraw(Canvas canvas) {
 
         drawBase(canvas);
+        //if (distance != 0 && !observableLoaded) {
+        //    loadObservable();
+        //}
         if (distance != 0 && !observableLoaded) {
-            loadObservable();
+            load(diagram);
         }
         super.dispatchDraw(canvas);
+    }
+
+    public void loadDiagram(MarbleDiagram diagram) {
+        this.diagram = diagram;
+    }
+
+    private void load(MarbleDiagram diagram) {
+        this.removeAllViews();
+        this.operatorName = diagram.getOperatorName();
+        this.setNumber(diagram.getSource().size());
+        distance = height / (number + 2) / 2;
+        invalidate();
+        LayoutParams params = new LayoutParams(80, 80);
+        float posY = distance;
+        float posX;
+        float resY = distance * (2 * number + 3);
+        float resX = 40;
+        for (List<Marble> marbleList : diagram.getSource()) {
+            posX = 40;
+            for (Marble marble : marbleList) {
+                MarbleView marbleView = new MarbleView(context, marble);
+                marbleView.setLayoutParams(params);
+                marbleView.setDistanceX(posX);
+                marbleView.setName(marble.getValue());
+                posX += 40 * 3;
+                marbleView.setDistanceY(posY);
+                this.addView(marbleView);
+                MarbleView marbleViewRes = new MarbleView(context, marble);
+                marbleViewRes.setLayoutParams(params);
+                marbleViewRes.setDistanceX(resX);
+                marbleViewRes.setName(marble.getValue());
+                resX += 40 * 3;
+                marbleViewRes.setDistanceY(resY);
+                marbleViewRes.setClickable(false);
+                this.addView(marbleViewRes);
+                marbleView.linkedWith(marbleViewRes);
+            }
+            posY += 2 * distance;
+        }
+        observableLoaded = true;
     }
 
     public void loadObservable() {
         MarbleView marbleView = new MarbleView(context);
         FrameLayout.LayoutParams params = new LayoutParams(80, 80);
         marbleView.setLayoutParams(params);
-        marbleView.setDistance(distance);
-        marbleView.setX(40);
+        marbleView.setDistanceY(distance);
+        marbleView.setDistanceX(40);
         marbleView.setName("A");
         this.addView(marbleView);
+        MarbleView marbleView2 = new MarbleView(context);
+        marbleView2.setLayoutParams(params);
+        marbleView2.setDistanceY(distance * ((number + 1) * 2 + 1));
+        marbleView2.setName("A");
+        this.addView(marbleView2);
+        marbleView.linkedWith(marbleView2);
         observableLoaded = true;
-        //this.addView();
     }
-
-    //private void drawObservables(final Canvas canvas) {
-    //    if (observables.size() != number) {
-    //        throw new RuntimeException("Doesn't have enough Observable Set to Draw");
-    //    }
-    //    float y = distance;
-    //    final float space = width / 16;
-    //    for (List<Ball> observable : observables) {
-    //        for (int i = 1 ; i <= observable.size() ; i++) {
-    //            float cx = space * (2 * i - 1);
-    //            canvas.drawCircle(cx, y, space / 2, ballPaint);
-    //            float posY = y - (ballTextPaint.descent() + ballTextPaint.ascent()) / 2;
-    //            canvas.drawText(observable.get(i - 1).getValue(), cx, posY, ballTextPaint);
-    //            //TextView text = new TextView(context);
-    //            //this.addView(text);
-    //            //ConstraintSet set = new ConstraintSet();
-    //            //set.clone(this);
-    //            //set.connect(text.getId(),ConstraintSet.TOP,this.getId(),ConstraintSet.TOP, (int) y);
-    //            //set.connect(text.getId(),ConstraintSet.START,this.getId(),ConstraintSet.START, (int) cx);
-    //            //set.applyTo(this);
-    //        }
-    //        y += 2 * distance;
-    //    }
-    //    final float y1 = y + 2 * distance;
-    //    Observable.fromIterable(observables)
-    //        .flatMapIterable(new Function<List<Ball>, Iterable<Ball>>() {
-    //            @Override
-    //            public Iterable<Ball> apply(@NonNull List<Ball> balls) throws Exception {
-    //                return balls;
-    //            }
-    //        })
-    //        .subscribe(new Consumer<Ball>() {
-    //            int i = 1;
-    //
-    //            @Override
-    //            public void accept(@NonNull Ball ball) throws Exception {
-    //                float cx = space * (2 * i++ - 1);
-    //                canvas.drawCircle(cx, y1, space / 2, ballPaint);
-    //                float posY = y1 - (ballTextPaint.descent() + ballTextPaint.ascent()) / 2;
-    //                canvas.drawText(ball.getValue(), cx, posY, ballTextPaint);
-    //            }
-    //        });
-    //}
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

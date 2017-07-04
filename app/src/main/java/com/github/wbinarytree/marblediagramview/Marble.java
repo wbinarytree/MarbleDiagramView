@@ -7,16 +7,17 @@ import android.support.annotation.ColorInt;
  * Created by yaoda on 30/06/17.
  */
 
-public class Ball {
+public class Marble {
     private String value;
     @ColorInt
     private int color;
 
-    public Ball(String value, @ColorInt int color) {
+    public Marble(String value, @ColorInt int color) {
         this.value = value;
         this.color = color;
     }
-    public Ball(String value) {
+
+    public Marble(String value) {
         this.value = value;
         this.color = Color.RED;
     }
@@ -38,4 +39,5 @@ public class Ball {
     public void setValue(String value) {
         this.value = value;
     }
+
 }
