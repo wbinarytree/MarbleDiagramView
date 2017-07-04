@@ -18,7 +18,7 @@ class MarbleView extends View {
 
     private Marble marble;
     private float distance = 0;
-    private Paint paint;
+    private Paint paint, borderPaint;
     private TextPaint textPaint;
     private float dX;
     private float dY;
@@ -68,11 +68,16 @@ class MarbleView extends View {
 
     private void init() {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        borderPaint.setColor(Color.BLACK);
+        borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setStrokeWidth(4);
         paint.setColor(marble.getColor());
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTextSize(48);
-        textPaint.setColor(Color.WHITE);
+        textPaint.setColor(Color.BLACK);
         textPaint.setTextAlign(Paint.Align.CENTER);
+
         setLayerType(LAYER_TYPE_SOFTWARE, paint);
     }
 
@@ -100,6 +105,7 @@ class MarbleView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawCircle(width / 2, height / 2, getWidth() / 2, paint);
+        canvas.drawCircle(width / 2, height / 2, getWidth() / 2 - 3, borderPaint);
         float xPos = width / 2;
         float yPos = (height - textPaint.descent() - textPaint.ascent()) / 2;
         canvas.drawText(name, xPos, yPos, textPaint);
