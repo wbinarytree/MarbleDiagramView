@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,6 +140,13 @@ public class MarbleDiagramView extends FrameLayout {
         float posX;
         float resY = distance * (2 * number + 3);
         float resX = 40;
+        List<Observable<Marble>> marbles = new ArrayList<>();
+        for(List<Marble> marbleList: diagram.getSource()){
+            marbles.add(Observable.fromIterable(marbleList));
+        }
+        //Observable<Marble>[] a = new Observable<Marble>[0];
+        // marbles.toArray(a);
+
         for (List<Marble> marbleList : diagram.getSource()) {
             posX = 40;
             for (Marble marble : marbleList) {

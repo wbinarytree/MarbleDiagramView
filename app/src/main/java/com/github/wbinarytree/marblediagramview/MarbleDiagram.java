@@ -1,5 +1,6 @@
 package com.github.wbinarytree.marblediagramview;
 
+import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +26,22 @@ public class MarbleDiagram {
         return operatorName;
     }
 
+    public interface ObservableAdapter {
+        Observable<Marble> convert(Observable<Marble>... marbles);
+    }
+
     public static class DiagramBuilder {
         private List<List<Marble>> source;
         private String operatorName;
+        private ObservableAdapter adapter;
 
         public DiagramBuilder() {
             source = new ArrayList<>();
             operatorName = "";
+        }
+
+        public ObservableAdapter getAdapter() {
+            return adapter;
         }
 
         DiagramBuilder addSource(List<Marble> marbleList) {
@@ -41,6 +51,11 @@ public class MarbleDiagram {
 
         DiagramBuilder setOperator(String name) {
             this.operatorName = name;
+            return this;
+        }
+
+        DiagramBuilder setResult(ObservableAdapter adapter) {
+            this.adapter = adapter;
             return this;
         }
 
