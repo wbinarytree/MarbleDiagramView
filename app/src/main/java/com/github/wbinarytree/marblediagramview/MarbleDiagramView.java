@@ -12,6 +12,7 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class MarbleDiagramView extends FrameLayout {
     private static final int MARGIN = 10;
     private static final float ARROWSIZE = 25f;
     private static final float LINE_SIZE = 5f;
+    private static final LayoutParams LAYOUT_PARAMS = new LayoutParams(80, 80);
     private final Context context;
     private boolean isBaseDrew;
     private int width;
@@ -44,6 +46,7 @@ public class MarbleDiagramView extends FrameLayout {
     private float distance;
     private boolean observableLoaded;
     private MarbleDiagram diagram;
+    ;
 
     public MarbleDiagramView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -140,12 +143,6 @@ public class MarbleDiagramView extends FrameLayout {
         float posX;
         float resY = distance * (2 * number + 3);
         float resX = 40;
-        List<Observable<Marble>> marbles = new ArrayList<>();
-        for(List<Marble> marbleList: diagram.getSource()){
-            marbles.add(Observable.fromIterable(marbleList));
-        }
-        //Observable<Marble>[] a = new Observable<Marble>[0];
-        // marbles.toArray(a);
 
         for (List<Marble> marbleList : diagram.getSource()) {
             posX = 40;
@@ -170,6 +167,29 @@ public class MarbleDiagramView extends FrameLayout {
             posY += 2 * distance;
         }
         observableLoaded = true;
+    }
+
+    private void loadFromDiagram(MarbleDiagram diagram) {
+        this.diagram = diagram;
+        cleanViews();
+        List<List<Marble>> source = diagram.getSource();
+
+        observableLoaded = true;
+    }
+
+    private void cleanViews() {
+        this.removeAllViews();
+        this.operatorName = diagram.getOperatorName();
+        this.setNumber(diagram.getSource().size());
+        distance = height / (number + 2) / 2;
+        invalidate();
+    }
+
+    private MarbleView generateMarbleView(Marble marble) {
+
+        MarbleView marbleView = new MarbleView(context, marble);
+        marbleView.setLayoutParams(new LayoutParams(LAYOUT_PARAMS));
+        return marbleView;
     }
 
     public void loadObservable() {

@@ -12,10 +12,17 @@ public class MarbleDiagram {
 
     private final List<List<Marble>> source;
     private final String operatorName;
+    private ObservableAdapter operator;
 
-    public MarbleDiagram(List<List<Marble>> source, String operatorName) {
+    public MarbleDiagram(List<List<Marble>> source, String operatorName,
+        ObservableAdapter operator) {
         this.source = source;
         this.operatorName = operatorName;
+        this.operator = operator;
+    }
+
+    public ObservableAdapter getOperator() {
+        return operator;
     }
 
     public List<List<Marble>> getSource() {
@@ -27,7 +34,7 @@ public class MarbleDiagram {
     }
 
     public interface ObservableAdapter {
-        Observable<Marble> convert(Observable<Marble>... marbles);
+        Observable<Marble> convert(List<Observable<Marble>> marbles);
     }
 
     public static class DiagramBuilder {
@@ -38,10 +45,6 @@ public class MarbleDiagram {
         public DiagramBuilder() {
             source = new ArrayList<>();
             operatorName = "";
-        }
-
-        public ObservableAdapter getAdapter() {
-            return adapter;
         }
 
         DiagramBuilder addSource(List<Marble> marbleList) {
@@ -60,7 +63,7 @@ public class MarbleDiagram {
         }
 
         public MarbleDiagram build() {
-            return new MarbleDiagram(source, operatorName);
+            return new MarbleDiagram(source, operatorName, adapter);
         }
     }
 }

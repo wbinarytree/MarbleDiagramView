@@ -77,8 +77,16 @@ class MarbleView extends View {
         textPaint.setTextSize(48);
         textPaint.setColor(Color.BLACK);
         textPaint.setTextAlign(Paint.Align.CENTER);
-
         setLayerType(LAYER_TYPE_SOFTWARE, paint);
+        this.setClickable(true);
+    }
+
+    @Override
+    public void bringToFront() {
+        super.bringToFront();
+        if (linkedMarbleView != null) {
+            linkedMarbleView.bringToFront();
+        }
     }
 
     public void setDistanceY(float distance) {
@@ -113,8 +121,13 @@ class MarbleView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isClickable()) {
+            return false;
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                this.bringToFront();
+                animate().scaleX(1.2f).scaleY(1.2f).setDuration(100).start();
                 dX = getX() - event.getRawX();
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -126,6 +139,9 @@ class MarbleView extends View {
                 if (x > width - getWidth() / 2 * 3) x = width - getWidth() / 2 * 3;
                 //animate().x(x).setDuration(0).start();
                 setX(x);
+                break;
+            case MotionEvent.ACTION_UP:
+                animate().scaleX(1).scaleY(1).setDuration(100).start();
                 break;
             default:
                 return false;

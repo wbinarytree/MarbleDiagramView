@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import io.reactivex.Observable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
             .setOperator("concat")
             .setResult(new MarbleDiagram.ObservableAdapter() {
                 @Override
-                public Observable<Marble> convert(Observable<Marble>... marbles) {
-                    return Observable.concat(Arrays.asList(marbles));
+                public Observable<Marble> convert(List<Observable<Marble>> marbles) {
+                    return Observable.concat(marbles);
                 }
             })
             .build());
